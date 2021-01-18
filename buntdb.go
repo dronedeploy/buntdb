@@ -7,6 +7,7 @@ package buntdb
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -159,10 +160,12 @@ func Open(path string) (*DB, error) {
 		// hardcoding 0666 as the default mode.
 		db.file, err = os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0666)
 		if err != nil {
+			fmt.Printf("Returning error from os.OpenFile: err: %v\n", err)
 			return nil, err
 		}
 		// load the database from disk
 		if err := db.load(); err != nil {
+			fmt.Printf("Returning error from db.load: err: %v\n", err)
 			// close on error, ignore close error
 			_ = db.file.Close()
 			return nil, err
