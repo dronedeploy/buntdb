@@ -917,13 +917,16 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 func (db *DB) load() error {
 	fi, err := db.file.Stat()
 	if err != nil {
+		fmt.Printf("Returning error from db.file.Stat(): err: %v\n", err)
 		return err
 	}
 	if err := db.readLoad(db.file, fi.ModTime()); err != nil {
+		fmt.Printf("Returning error from readLoad(): err: %v\n", err)
 		return err
 	}
 	pos, err := db.file.Seek(0, 2)
 	if err != nil {
+		fmt.Printf("Returning error from db.file.Seek(): err: %v\n", err)
 		return err
 	}
 	db.lastaofsz = int(pos)
