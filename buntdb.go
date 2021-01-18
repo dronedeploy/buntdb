@@ -815,7 +815,7 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 			// read the number of bytes of the part.
 			line, err := r.ReadBytes('\n')
 			if err != nil {
-				fmt.Printf("error from ReadBytes: %v", err)
+				fmt.Printf("error from ReadBytes: %v\n", err)
 				return err
 			}
 			if line[0] != '$' {
@@ -848,7 +848,11 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 				data = make([]byte, dataln)
 			}
 			if _, err = io.ReadFull(r, data[:n+2]); err != nil {
-				fmt.Printf("error from ReadFull: %v", err)
+				if err == io.ErrUnexpectedEOF {
+					fmt.Printf("UnexpectedEOF error from ReadFull; continuing: %v\n", err)
+					continue
+				}
+				fmt.Printf("error from ReadFull that wasn't UnexpectedEOF!!!!!: %v\n", err)
 				return err
 			}
 			if data[n] != '\r' || data[n+1] != '\n' {
