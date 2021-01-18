@@ -771,6 +771,7 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 		// read a single command.
 		// first we should read the number of parts that the of the command
 		line, err := r.ReadBytes('\n')
+		fmt.Printf("line = %s\n", string(line))
 		if err != nil {
 			// fmt.Printf("line = %+v\n", line)
 			// fmt.Printf("line as string = %s\n", string(line))
@@ -814,6 +815,7 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 			// read the number of bytes of the part.
 			line, err := r.ReadBytes('\n')
 			if err != nil {
+				fmt.Printf("error from ReadBytes: %v", err)
 				return err
 			}
 			if line[0] != '$' {
@@ -846,6 +848,7 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 				data = make([]byte, dataln)
 			}
 			if _, err = io.ReadFull(r, data[:n+2]); err != nil {
+				fmt.Printf("error from ReadFull: %v", err)
 				return err
 			}
 			if data[n] != '\r' || data[n+1] != '\n' {
@@ -872,6 +875,7 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 				}
 				ex, err := strconv.ParseUint(parts[4], 10, 64)
 				if err != nil {
+					fmt.Printf("error from strconv.ParseUint: %v", err)
 					return err
 				}
 				now := time.Now()
