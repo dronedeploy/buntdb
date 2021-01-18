@@ -7,7 +7,6 @@ package buntdb
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -160,12 +159,10 @@ func Open(path string) (*DB, error) {
 		// hardcoding 0666 as the default mode.
 		db.file, err = os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0666)
 		if err != nil {
-			fmt.Printf("Returning error from os.OpenFile: err: %v\n", err)
 			return nil, err
 		}
 		// load the database from disk
 		if err := db.load(); err != nil {
-			fmt.Printf("Returning error from db.load: err: %v\n", err)
 			// close on error, ignore close error
 			_ = db.file.Close()
 			return nil, err
@@ -774,14 +771,12 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 		if err != nil {
 			if len(line) > 0 {
 				// got an eof but also data. this should be an unexpected eof.
-				fmt.Printf("Unexpected EOF here. For debugging now returning nil!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-				return nil
-				//return io.ErrUnexpectedEOF
+				return io.ErrUnexpectedEOF
 			}
 			if err == io.EOF {
 				break
 			}
-			return nil
+			return err
 		}
 		if line[0] != '*' {
 			return ErrInvalid
@@ -810,7 +805,6 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 			// read the number of bytes of the part.
 			line, err := r.ReadBytes('\n')
 			if err != nil {
-				fmt.Printf("error from ReadBytes: %v\n", err)
 				return err
 			}
 			if line[0] != '$' {
@@ -844,11 +838,9 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 			}
 			if _, err = io.ReadFull(r, data[:n+2]); err != nil {
 				if err == io.ErrUnexpectedEOF {
-					fmt.Printf("UnexpectedEOF error from ReadFull; setting parts to empty slice: %v\n", err)
-					parts = parts[:0]
+					parts = parts[:0] // If we have an unexpected EOF error for a section of the .db file. Just ignore it and move on. Don't add it to the database, but don't discard the rest of the data.
 					break
 				}
-				fmt.Printf("error from ReadFull that wasn't UnexpectedEOF!!!!!: %v\n", err)
 				return err
 			}
 			if data[n] != '\r' || data[n+1] != '\n' {
@@ -875,7 +867,6 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 				}
 				ex, err := strconv.ParseUint(parts[4], 10, 64)
 				if err != nil {
-					fmt.Printf("error from strconv.ParseUint: %v", err)
 					return err
 				}
 				now := time.Now()
@@ -921,16 +912,13 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 func (db *DB) load() error {
 	fi, err := db.file.Stat()
 	if err != nil {
-		fmt.Printf("Returning error from db.file.Stat(): err: %v\n", err)
 		return err
 	}
 	if err := db.readLoad(db.file, fi.ModTime()); err != nil {
-		fmt.Printf("Returning error from readLoad(): err: %v\n", err)
 		return err
 	}
 	pos, err := db.file.Seek(0, 2)
 	if err != nil {
-		fmt.Printf("Returning error from db.file.Seek(): err: %v\n", err)
 		return err
 	}
 	db.lastaofsz = int(pos)

@@ -1380,6 +1380,24 @@ func TestDatabaseFormat(t *testing.T) {
 			t.Fatalf("invalid database should not be allowed")
 		}
 	}
+	testIgnoreUnexpectedEOF := func(resp string) {
+		if err := os.RemoveAll("data.db"); err != nil {
+			t.Fatal(err)
+		}
+		if err := ioutil.WriteFile("data.db", []byte(resp), 0666); err != nil {
+			t.Fatal(err)
+		}
+		db, err := Open("data.db")
+		if err != nil {
+			if err := db.Close(); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.RemoveAll("data.db"); err != nil {
+				t.Fatal(err)
+			}
+			t.Fatalf("unexpectedEOF for part of database should be ignored, err: %v", err)
+		}
+	}
 	testBadFormat("*3\r")
 	testBadFormat("*3\n")
 	testBadFormat("*a\r\n")
@@ -1387,7 +1405,6 @@ func TestDatabaseFormat(t *testing.T) {
 	testBadFormat("*2\r\n%3")
 	testBadFormat("*2\r\n$")
 	testBadFormat("*2\r\n$3\r\n")
-	testBadFormat("*2\r\n$3\r\ndel")
 	testBadFormat("*2\r\n$3\r\ndel\r\r")
 	testBadFormat("*0\r\n*2\r\n$3\r\ndel\r\r")
 	testBadFormat("*1\r\n$3\r\nnop\r\n")
@@ -1399,7 +1416,9 @@ func TestDatabaseFormat(t *testing.T) {
 	testBadFormat("*1A\r\n$3\r\nset\r\n$3\r\nvar\r\n$3\r\nval\r\n$2\r\nex\r\n$2\r\naa\r\n")
 	testBadFormat("*5\r\n$13\r\nset\r\n$3\r\nvar\r\n$3\r\nval\r\n$2\r\nex\r\n$2\r\naa\r\n")
 	testBadFormat("*5\r\n$1A\r\nset\r\n$3\r\nvar\r\n$3\r\nval\r\n$2\r\nex\r\n$2\r\naa\r\n")
-	testBadFormat("*5\r\n$3\r\nset\r\n$5000\r\nvar\r\n$3\r\nval\r\n$2\r\nex\r\n$2\r\naa\r\n")
+
+	testIgnoreUnexpectedEOF("*2\r\n$3\r\ndel")
+	testIgnoreUnexpectedEOF("*5\r\n$3\r\nset\r\n$5000\r\nvar\r\n$3\r\nval\r\n$2\r\nex\r\n$2\r\naa\r\n")
 }
 
 func TestInsertsAndDeleted(t *testing.T) {
