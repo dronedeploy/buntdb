@@ -7,6 +7,7 @@ package buntdb
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -771,7 +772,10 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 		if err != nil {
 			if len(line) > 0 {
 				// got an eof but also data. this should be an unexpected eof.
-				break
+				fmt.Printf("line = %+v\n", line)
+				fmt.Printf("line as string = %s\n", string(line))
+				fmt.Printf("Unexpected EOF here. For debugging now returning nil!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+				return nil
 				//return io.ErrUnexpectedEOF
 			}
 			if err == io.EOF {
