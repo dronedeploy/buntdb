@@ -851,6 +851,7 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 				if err == io.ErrUnexpectedEOF {
 					fmt.Printf("UnexpectedEOF error from ReadFull; setting parts to empty slice: %v\n", err)
 					parts = parts[:0]
+					break
 				}
 				fmt.Printf("error from ReadFull that wasn't UnexpectedEOF!!!!!: %v\n", err)
 				return err
