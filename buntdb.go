@@ -783,7 +783,7 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 			if err == io.EOF {
 				break
 			}
-			return err
+			return nil
 		}
 		if line[0] != '*' {
 			return ErrInvalid
