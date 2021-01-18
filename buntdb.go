@@ -7,7 +7,6 @@ package buntdb
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -770,19 +769,19 @@ func (db *DB) readLoad(rd io.Reader, modTime time.Time) error {
 		// first we should read the number of parts that the of the command
 		line, err := r.ReadBytes('\n')
 		if err != nil {
-			fmt.Printf("line = %+v\n", line)
-			fmt.Printf("line as string = %s\n", string(line))
-			if len(line) > 0 {
-				// got an eof but also data. this should be an unexpected eof.
-				fmt.Printf("line = %+v\n", line)
-				fmt.Printf("line as string = %s\n", string(line))
-				fmt.Printf("Unexpected EOF here. For debugging now returning nil!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-				return nil
-				//return io.ErrUnexpectedEOF
-			}
-			if err == io.EOF {
-				break
-			}
+			// fmt.Printf("line = %+v\n", line)
+			// fmt.Printf("line as string = %s\n", string(line))
+			// if len(line) > 0 {
+			// 	// got an eof but also data. this should be an unexpected eof.
+			// 	fmt.Printf("line = %+v\n", line)
+			// 	fmt.Printf("line as string = %s\n", string(line))
+			// 	fmt.Printf("Unexpected EOF here. For debugging now returning nil!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+			// 	return nil
+			// 	//return io.ErrUnexpectedEOF
+			// }
+			// if err == io.EOF {
+			// 	break
+			// }
 			return nil
 		}
 		if line[0] != '*' {
