@@ -1,4 +1,4 @@
-module github.com/team-rocos/buntdb
+module github.com/dronedeploy/buntdb
 
 go 1.15
 
